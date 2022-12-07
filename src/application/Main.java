@@ -27,9 +27,9 @@ public class Main extends Application {
 	static final String DATABASE_URL = "jdbc:oracle:thin:@199.212.26.208:1521:SQLD";
 	static final String USER_NAME = "COMP214_F22_er_70";
 	static final String PASS = "password";
-	ListView<String> basketData = new ListView<String>();
-	TextField searchBasketId = new TextField();
-	Button searchBaskId = new Button("Search"); 
+	ListView<String> basketItemData = new ListView<String>();
+	TextField searchBasketItemId = new TextField();
+	Button searchBaskItemId = new Button("Search"); 
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -42,11 +42,14 @@ public class Main extends Application {
 			root.setVgap(20);
 			Label basketIdBox = new Label("Basket ID:");
 			root.add(basketIdBox, 0, 1);
-			root.add(searchBasketId, 1, 1);
-			root.add(searchBaskId, 2, 1);
-			searchBaskId.setOnAction(e -> {
+			root.add(searchBasketItemId, 1, 1);
+			root.add(searchBasketItemId, 2, 1);
+			searchBasketItemId.setOnAction(e -> {
 				getBasketData();
 			});
+			root.add(basketItemData, 0, 2);
+			GridPane.setColumnSpan(basketItemData, GridPane.REMAINING);
+			basketItemData.setPrefHeight(100);
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -67,7 +70,7 @@ public class Main extends Application {
 
 			Statement st = con.createStatement();
 			
-			int userBasketNum = Integer.parseInt(searchBasketId.getText());
+			int userBasketNum = Integer.parseInt(searchBasketItemId.getText());
 			
 			String q = "SELECT * FROM BB_BASKETITEM WHERE IDBASKETITEM = ?";
 			
@@ -75,10 +78,10 @@ public class Main extends Application {
 			
 			pst.setInt(1, userBasketNum);
 			
-			ResultSet rs = st.executeQuery(q);
+			ResultSet rs = pst.executeQuery();
 			
 			
-           ObservableList<String> basketList = FXCollections.observableList(new ArrayList<String>());
+           ObservableList<String> basketItemList = FXCollections.observableList(new ArrayList<String>());
 		   
            while(rs.next()) {
         	   
@@ -90,10 +93,10 @@ public class Main extends Application {
         	   int option1 = rs.getInt(6);
         	   int option2 = rs.getInt(7);
         	   
-        	   basketList.add(idBasketItem+"\t"+idProduct+"\t"+price+"\t"+quantity+"\t"+idBasket+"\t"+option1+"\t"+option2);
+        	   basketItemList.add("Basket Item ID: "+idBasketItem+"\t"+"Prodcut ID: "+idProduct+"\t"+"Price: "+price+"\t"+"Qauntity: "+quantity+"\t"+"Basket ID: "+idBasket+"\t"+"Option 1: "+option1+"\t"+"Option 2: "+option2);
            }
            
-           basketData.setItems(basketList);
+           basketItemData.setItems(basketItemList);
 
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
