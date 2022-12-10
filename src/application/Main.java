@@ -24,6 +24,9 @@ import javafx.scene.layout.GridPane;
 
 public class Main extends Application {
 	
+	//Scene
+	Scene scene1, scene2, scene3, scene4;
+	
 	//Variables 
 	static final String DATABASE_URL = "jdbc:oracle:thin:@199.212.26.208:1521:SQLD";
 	static final String USER_NAME = "COMP214_F22_er_70";
@@ -39,74 +42,99 @@ public class Main extends Application {
 	TextField prodImg = new TextField();
 	TextField prodPrice = new TextField();
 	TextField prodAct = new TextField();
+	Button backButton = new Button("Back");
 	Button searchBaskItemId = new Button("Search");
 	Button changeProdDescBut = new Button("Edit");
 	Button addProduct = new Button("Add");
+	Button goToProdPage = new Button("Products");
+	Button goToOrderPage = new Button("Orders");
+	Button goToBasketPage = new Button("Basket");
 	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			//Scene1
 			primaryStage.setTitle("BB Brewery Application");
 			GridPane root = new GridPane();
-			Scene scene = new Scene(root,550,1100);
+			scene1 = new Scene(root,450,700);
 			root.setPadding(new Insets(25,25,25,25));
 			root.setHgap(20);
 			root.setVgap(20);
+			//Button For Products Page
+			root.add(goToProdPage, 0, 0);
+			goToProdPage.setOnAction(e -> primaryStage.setScene(scene2));
+			goToProdPage.setPrefWidth(450);
+			goToProdPage.setPrefHeight(100);
+			root.add(goToOrderPage, 0, 1);
+			goToOrderPage.setOnAction(e-> primaryStage.setScene(scene3));
+			goToOrderPage.setPrefHeight(100);
+			goToOrderPage.setPrefWidth(450);
+			root.add(goToBasketPage, 0, 2);
+			goToBasketPage.setOnAction(e-> primaryStage.setScene(scene4));
+			goToBasketPage.setPrefHeight(100);
+			goToBasketPage.setPrefWidth(450);
 			//Basket Item Search
-				Label basketItemSearchLabel = new Label("Basket Item Search");
-				root.add(basketItemSearchLabel, 0, 0);
-				Label basketIdBox = new Label("Basket Item ID:");
-				root.add(basketIdBox, 0, 1);
-				root.add(searchBasketItemId, 1, 1);
-				root.add(searchBaskItemId, 2, 1);
-				searchBaskItemId.setOnAction(e -> {
-					getBasketItemData();
-				});
-				root.add(basketItemData, 0, 2);
-				GridPane.setColumnSpan(basketItemData, GridPane.REMAINING);
-				basketItemData.setPrefHeight(100);
+//				Label basketItemSearchLabel = new Label("Basket Item Search");
+//				root.add(basketItemSearchLabel, 0, 0);
+//				Label basketIdBox = new Label("Basket Item ID:");
+//				root.add(basketIdBox, 0, 1);
+//				root.add(searchBasketItemId, 1, 1);
+//				root.add(searchBaskItemId, 2, 1);
+//				searchBaskItemId.setOnAction(e -> {
+//					getBasketItemData();
+//				});
+//				root.add(basketItemData, 0, 2);
+//				GridPane.setColumnSpan(basketItemData, GridPane.REMAINING);
+//				basketItemData.setPrefHeight(100);
+			//Scene 2
+			GridPane root2 = new GridPane();
+			scene2 = new Scene(root2,450, 700);
+			root2.setPadding(new Insets(25,25,25,25));
+			root2.setHgap(20);
+			root2.setVgap(20);	
 			//Change Product Description
 				Label labelChangeProd = new Label("Change Prodcut Description");
-				root.add(labelChangeProd, 0, 3);
+				root2.add(labelChangeProd, 0, 0);
 				Label labelProdId = new Label("Product ID: ");
-				root.add(labelProdId, 0, 4);
-				root.add(prodId, 1, 4);
+				root2.add(labelProdId, 0, 1);
+				root2.add(prodId, 1, 1);
 				Label labelProdDesc = new Label("Product Description: ");
-				root.add(labelProdDesc, 0, 5);
-				root.add(prodDesc, 1, 5);
-				root.add(changeProdDescBut, 2, 5);
+				root2.add(labelProdDesc, 0, 2);
+				root2.add(prodDesc, 1, 2);
+				root2.add(changeProdDescBut, 2, 2);
 				changeProdDescBut.setOnAction(e -> {
 					changeProdDescData();
 				});
-				root.add(prodDescList, 0, 6);
+				root2.add(prodDescList, 0, 3);
 				GridPane.setColumnSpan(prodDescList, GridPane.REMAINING);
 				prodDescList.setPrefHeight(100);
 			//Add New Product
 				Label labelAddProd = new Label("Add Product");
-				root.add(labelAddProd, 0, 7);
+				root2.add(labelAddProd, 0, 7);
 				Label labelProdName = new Label("Product Name: ");
-				root.add(labelProdName, 0, 8);
-				root.add(prodName, 1, 8);
+				root2.add(labelProdName, 0, 8);
+				root2.add(prodName, 1, 8);
 				Label labelAddProdDesc = new Label("Product Description: ");
-				root.add(labelAddProdDesc, 0, 9);
-				root.add(addProdDesc, 1, 9);
+				root2.add(labelAddProdDesc, 0, 9);
+				root2.add(addProdDesc, 1, 9);
 				Label labelProdImg = new Label("Product Image: ");
-				root.add(labelProdImg, 0, 10);
-				root.add(prodImg, 1, 10);
+				root2.add(labelProdImg, 0, 10);
+				root2.add(prodImg, 1, 10);
 				Label labelProdPric = new Label("Product Price: ");
-				root.add(labelProdPric, 0, 11);
-				root.add(prodPrice, 1, 11);
+				root2.add(labelProdPric, 0, 11);
+				root2.add(prodPrice, 1, 11);
 				Label labelProdAct = new Label("Product Active: ");
-				root.add(labelProdAct, 0, 12);
-				root.add(prodAct, 1, 12);
-				root.add(addProduct, 2, 12);
+				root2.add(labelProdAct, 0, 12);
+				root2.add(prodAct, 1, 12);
+				root2.add(addProduct, 2, 12);
 				addProduct.setOnAction(e -> {
 					addNewProduct();
 				});
-				root.add(prodList, 0, 13);
+				root2.add(prodList, 0, 13);
 				GridPane.setColumnSpan(prodList, GridPane.REMAINING);
 				prodList.setPrefHeight(100);
-			primaryStage.setScene(scene);
+				root2.add(backButton, 0, 0);
+			primaryStage.setScene(scene1);
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
