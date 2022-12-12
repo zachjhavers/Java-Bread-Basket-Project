@@ -1,5 +1,6 @@
 package application;
 	
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
@@ -8,10 +9,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
@@ -509,11 +513,14 @@ public class Main extends Application {
 	
 	private void calculateSalesProduct() {
 		
+		
 		String call = "DECLARE "
 					+ " sales VARCHAR(20); "
+					+ " num integer := 1000; "
 					+ " BEGIN "
 					+ " sales := CK_SALE_SF(?, ?); "
 					+ " DBMS_OUTPUT.PUT_LINE(sales); "
+					+ " DBMS_OUTPUT.GET_LINES(?, num);"
 					+ " END;";
 		
 		try 
@@ -524,21 +531,38 @@ public class Main extends Application {
 
 			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
 			
+			Statement s = con.createStatement();
+			s.executeUpdate("BEGIN DBMS_OUTPUT.ENABLE(); END;");
+			
 			int userProdId = Integer.parseInt(prodIdSaleBox.getText());
 			String userProdDate = salDatePick.getText();
 			
+			
 			CallableStatement cstmt = con.prepareCall(call);
 
-			
 			cstmt.setInt(1, userProdId);
 			cstmt.setString(2, userProdDate);
-
+			
+			cstmt.registerOutParameter(3, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
 			cstmt.execute();
 			
-			String sales = cstmt.getString(3);
-			System.out.println("Sales: " + sales);
+            Array array = null;
+            try 
+            {
+                array = cstmt.getArray(3);
+                System.out.println(Arrays.asList((Object[]) array.getArray()));
+                
+            }
+            finally 
+            {
+                if (array != null)
+                    array.free();
+            }
 			
 			cstmt.close();
+			
+		    s.executeUpdate("begin dbms_output.disable(); end;");
+
 						
 		
 		} catch (ClassNotFoundException | SQLException e) {
