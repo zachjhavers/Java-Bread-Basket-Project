@@ -13,12 +13,9 @@ import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
 
@@ -26,14 +23,16 @@ public class Main extends Application {
 	
 	//Scene
 	Scene scene1, scene2, scene3, scene4;
-	
-	//Variables 
+
+	//Variables
 	static final String DATABASE_URL = "jdbc:oracle:thin:@199.212.26.208:1521:SQLD";
-	static final String USER_NAME = "COMP214_F22_er_70";
+	//	static final String USER_NAME = "COMP214_F22_er_70";
+	static final String USER_NAME = "COMP214_F22_er_41";
 	static final String PASS = "password";
 	ListView<String> basketItemData = new ListView<String>();
 	ListView<String> prodDescList = new ListView<String>();
 	ListView<String> prodList = new ListView<String>();
+	ListView<String> orderTaxList = new ListView<String>();
 	TextField searchBasketItemId = new TextField();
 	TextField prodId = new TextField();
 	TextField prodDesc = new TextField();
@@ -42,6 +41,13 @@ public class Main extends Application {
 	TextField prodImg = new TextField();
 	TextField prodPrice = new TextField();
 	TextField prodAct = new TextField();
+	TextField orderLocation = new TextField();
+	TextField orderSubtotal = new TextField();
+
+	TextField idBasket = new TextField();
+	DatePicker datePick = new DatePicker();
+	TextField shipperComp = new TextField();
+	TextField shipNum = new TextField();
 	Button backButton = new Button("Back");
 	Button searchBaskItemId = new Button("Search");
 	Button changeProdDescBut = new Button("Edit");
@@ -49,6 +55,8 @@ public class Main extends Application {
 	Button goToProdPage = new Button("Products");
 	Button goToOrderPage = new Button("Orders");
 	Button goToBasketPage = new Button("Basket");
+	Button calcTax = new Button("Calculate");
+	Button shipStatus = new Button("Add Shipping");
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -134,6 +142,45 @@ public class Main extends Application {
 				GridPane.setColumnSpan(prodList, GridPane.REMAINING);
 				prodList.setPrefHeight(100);
 				root2.add(backButton, 0, 0);
+			//Orders page scene3
+			GridPane root3 = new GridPane();
+			scene3 = new Scene(root3,650, 700);
+			root3.setPadding(new Insets(25,25,25,25));
+			root3.setHgap(20);
+			root3.setVgap(30);
+
+			//Sales tax calculation
+			Label labelState = new Label("State: ");
+			root3.add(labelState, 0, 0);
+			root3.add(orderLocation, 8, 0);
+			Label LabelSubtotal = new Label("Subtotal: ");
+			root3.add(LabelSubtotal,0,1);
+			root3.add(orderSubtotal, 8,1);
+			root3.add(calcTax, 9,3);
+
+			root3.add(backButton, 0, 13);
+			root3.add(orderTaxList, 0, 2);
+			GridPane.setColumnSpan(orderTaxList, GridPane.REMAINING);
+			orderTaxList.setPrefHeight(100);
+			backButton.setOnAction(e -> primaryStage.setScene(scene1));
+			calcTax.setOnAction(e -> {
+//				taxCalculation();
+			});
+
+			//Order Status
+			Label IdBasket = new Label("ID BASKET: ");
+			root3.add(IdBasket, 0, 5);
+			root3.add(idBasket, 8, 5);
+			Label date = new Label("Date: ");
+			root3.add(date, 0, 6);
+			root3.add(datePick, 8, 6);
+			Label shipper = new Label("Shipper: ");
+			root3.add(shipper, 0, 7);
+			root3.add(shipperComp, 8, 7);
+			Label shipNumber = new Label("Shipping Num:");
+			root3.add(shipNumber, 0, 8);
+			root3.add(shipNum, 8, 8);
+			root3.add(shipStatus, 7,9);
 			primaryStage.setScene(scene1);
 			primaryStage.show();
 		} catch(Exception e) {
