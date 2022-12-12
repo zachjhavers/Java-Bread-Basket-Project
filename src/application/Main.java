@@ -1,25 +1,31 @@
 package application;
 	
 import java.sql.CallableStatement;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import org.w3c.dom.Text;
+
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetProvider;
+import javax.xml.transform.Result;
 
 
 public class Main extends Application {
@@ -29,11 +35,13 @@ public class Main extends Application {
 	
 	//Variables 
 	static final String DATABASE_URL = "jdbc:oracle:thin:@199.212.26.208:1521:SQLD";
-	static final String USER_NAME = "COMP214_F22_er_70";
+//	static final String USER_NAME = "COMP214_F22_er_70";
+	static final String USER_NAME = "COMP214_F22_er_41";
 	static final String PASS = "password";
 	ListView<String> basketItemData = new ListView<String>();
 	ListView<String> prodDescList = new ListView<String>();
 	ListView<String> prodList = new ListView<String>();
+	ListView<String> orderTaxList = new ListView<String>();
 	TextField searchBasketItemId = new TextField();
 	TextField prodId = new TextField();
 	TextField prodDesc = new TextField();
@@ -42,6 +50,13 @@ public class Main extends Application {
 	TextField prodImg = new TextField();
 	TextField prodPrice = new TextField();
 	TextField prodAct = new TextField();
+	TextField orderLocation = new TextField();
+	TextField orderSubtotal = new TextField();
+
+	TextField idBasket = new TextField();
+	DatePicker datePick = new DatePicker();
+	TextField shipperComp = new TextField();
+	TextField shipNum = new TextField();
 	Button backButton = new Button("Back");
 	Button searchBaskItemId = new Button("Search");
 	Button changeProdDescBut = new Button("Edit");
@@ -49,6 +64,8 @@ public class Main extends Application {
 	Button goToProdPage = new Button("Products");
 	Button goToOrderPage = new Button("Orders");
 	Button goToBasketPage = new Button("Basket");
+	Button calcTax = new Button("Calculate");
+	Button shipStatus = new Button("Add Shipping");
 	
 	@Override
 	public void start(Stage primaryStage) {
@@ -93,7 +110,7 @@ public class Main extends Application {
 			root2.setHgap(20);
 			root2.setVgap(20);	
 			//Change Product Description
-				Label labelChangeProd = new Label("Change Prodcut Description");
+				Label labelChangeProd = new Label("Change Product Description");
 				root2.add(labelChangeProd, 0, 0);
 				Label labelProdId = new Label("Product ID: ");
 				root2.add(labelProdId, 0, 1);
@@ -133,7 +150,48 @@ public class Main extends Application {
 				root2.add(prodList, 0, 13);
 				GridPane.setColumnSpan(prodList, GridPane.REMAINING);
 				prodList.setPrefHeight(100);
-				root2.add(backButton, 0, 0);
+				root2.add(backButton, 0, 2);
+				backButton.setOnAction(e -> primaryStage.setScene(scene1));
+
+			//Orders page scene3
+			GridPane root3 = new GridPane();
+			scene3 = new Scene(root3,650, 700);
+			root3.setPadding(new Insets(25,25,25,25));
+			root3.setHgap(20);
+			root3.setVgap(30);
+
+			//Sales tax calculation
+			Label labelState = new Label("State: ");
+			root3.add(labelState, 0, 0);
+			root3.add(orderLocation, 8, 0);
+			Label LabelSubtotal = new Label("Subtotal: ");
+			root3.add(LabelSubtotal,0,1);
+			root3.add(orderSubtotal, 8,1);
+			root3.add(calcTax, 9,3);
+
+			root3.add(backButton, 0, 13);
+			root3.add(orderTaxList, 0, 2);
+			GridPane.setColumnSpan(orderTaxList, GridPane.REMAINING);
+			orderTaxList.setPrefHeight(100);
+			backButton.setOnAction(e -> primaryStage.setScene(scene1));
+			calcTax.setOnAction(e -> {
+				taxCalculation();
+			});
+
+			//Order Status
+			Label IdBasket = new Label("ID BASKET: ");
+			root3.add(IdBasket, 0, 5);
+			root3.add(idBasket, 8, 5);
+			Label date = new Label("Date: ");
+			root3.add(date, 0, 6);
+			root3.add(datePick, 8, 6);
+			Label shipper = new Label("Shipper: ");
+			root3.add(shipper, 0, 7);
+			root3.add(shipperComp, 8, 7);
+			Label shipNumber = new Label("Shipping Num:");
+			root3.add(shipNumber, 0, 8);
+			root3.add(shipNum, 8, 8);
+			root3.add(shipStatus, 7,9);
 			primaryStage.setScene(scene1);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -186,7 +244,8 @@ public class Main extends Application {
 		}
 		
 	}
-	
+
+
 	private void changeProdDescData() {
 		
 		CallableStatement cstmt = null;
@@ -340,7 +399,49 @@ public class Main extends Application {
 		}
 		
 	}
-	
+
+
+	private void taxCalculation() {
+
+		try {
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+			String Location = orderLocation.getText();
+			int subtotal = Integer.parseInt(orderSubtotal.getText());
+
+
+			String q = "DECLARE\n" +
+					"    v_totalamt DECIMAL(4,2);\n" +
+					"BEGIN\n" +
+					"    TAX_COST_SP('"  + Location + "', " + subtotal +  ", "+"v_totalamt);\n" +
+					"    DBMS_OUTPUT.PUT_LINE('The tax amount is $' ||to_char(v_totalamt,'0.00'));    \n" +
+					"END;\n";
+
+
+			Statement st = con.createStatement();
+			st.executeUpdate("begin dbms_output.enable(); end;");
+
+
+
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+}
+
+
+	private void addNewShipping() throws SQLException {
+		CachedRowSet crs = RowSetProvider.newFactory().createCachedRowSet();
+		CallableStatement cstmt = null;
+
+
+
+	}
+
+
+
 
 	
 	
