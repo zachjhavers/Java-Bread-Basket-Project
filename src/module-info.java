@@ -6,6 +6,7 @@ module BBBreweryApplication
 	requires java.sql;
 	requires javafx.swt;
     requires java.sql.rowset;
+	requires java.desktop;
 
     opens application to javafx.graphics, javafx.fxml;
 }

@@ -16,6 +16,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.stream.Stream;
+
+import javax.swing.JOptionPane;
+
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -66,7 +69,13 @@ public class Main extends Application {
 		TextField shipperComp = new TextField();
 		TextField shipNum = new TextField();
 		TextField idBasket = new TextField();
-		Button backButton = new Button("Back");
+		TextField prodIdStock = new TextField();
+		Button checkStockBut = new Button("Check Stock");
+		Button backButton1 = new Button("Back");
+		Button backButton2 = new Button("Back");
+		Button backButton3 = new Button("Back");
+		Button backButton4 = new Button("Back");
+		Button backButton5 = new Button("Back");
 		Button searchBaskItemId = new Button("Search");
 		Button changeProdDescBut = new Button("Edit");
 		Button addProduct = new Button("Add");
@@ -158,8 +167,8 @@ public class Main extends Application {
 				root2.add(prodList, 0, 13);
 				GridPane.setColumnSpan(prodList, GridPane.REMAINING);
 				prodList.setPrefHeight(100);
-				root2.add(backButton, 0, 14);
-				backButton.setOnAction(e->{
+				root2.add(backButton1, 2, 1);
+				backButton1.setOnAction(e->{
 					primaryStage.setScene(scene1);
 				});
 			//Orders page scene3
@@ -176,14 +185,11 @@ public class Main extends Application {
 					root3.add(LabelSubtotal,0,1);
 					root3.add(orderSubtotal, 8,1);
 					root3.add(calcTax, 9,3);
-	
-					root3.add(backButton, 0, 13);
 					root3.add(orderTaxList, 0, 2);
 					GridPane.setColumnSpan(orderTaxList, GridPane.REMAINING);
 					orderTaxList.setPrefHeight(100);
-					backButton.setOnAction(e -> primaryStage.setScene(scene1));
 					calcTax.setOnAction(e -> {
-						//taxCalculation();
+						taxCalculation();
 				});
 			//Order Status
 					Label IdBasket = new Label("ID BASKET: ");
@@ -199,12 +205,15 @@ public class Main extends Application {
 					root3.add(shipNumber, 0, 8);
 					root3.add(shipNum, 8, 8);
 					root3.add(shipStatus, 7,9);
-				primaryStage.setScene(scene1);
-				primaryStage.show();
+				//Add Back Button
+					root3.add(backButton3, 0, 10);
+					backButton3.setOnAction(e->{
+						primaryStage.setScene(scene1);
+					});
 			//Basket Page
 				//Scene 4
 					GridPane root4 = new GridPane();
-					scene4 = new Scene(root4,450, 700);
+					scene4 = new Scene(root4,450, 800);
 					root4.setPadding(new Insets(25,25,25,25));
 					root4.setHgap(20);
 					root4.setVgap(20);	
@@ -249,27 +258,100 @@ public class Main extends Application {
 					root4.add(addToBask, 0, 11);
 					GridPane.setColumnSpan(addToBask, GridPane.REMAINING);
 					addToBask.setPrefHeight(100);
+				//Check Stock
+					Label checkStockLabel = new Label("Check Stock");
+					root4.add(checkStockLabel, 0, 12);
+					Label prodIdStocLab = new Label("Product ID: ");
+					root4.add(prodIdStocLab, 0, 13);
+					root4.add(prodIdStock, 1, 13);
+					root4.add(checkStockBut, 2, 13);
+					checkStockBut.setOnAction(e->{
+						checkStock();
+					});
 				//Add Back Button
-					root4.add(backButton, 0, 12);
-					backButton.setOnAction(e->{
+					root4.add(backButton4, 0, 14);
+					backButton4.setOnAction(e->{
 						primaryStage.setScene(scene1);
 					});
 			//Sale Page
 				//Scene 5
 					GridPane root5 = new GridPane();
-					scene5 = new Scene(root5,450,700);
+					scene5 = new Scene(root5,450,300);
 					root5.setPadding(new Insets(25,25,25,25));
 					root5.setHgap(20);
 					root5.setVgap(20);
-					root5.add(prodIdSaleBox, 0, 0);
-					root5.add(salDatePick, 0, 1);
-					root5.add(searchSale, 0, 2);
+					Label prodIdSaleLabel = new Label("Enter Product ID: ");
+					root5.add(prodIdSaleLabel, 0, 0);
+					root5.add(prodIdSaleBox, 1, 0);
+					Label prodSaleDateLab = new Label("Enter Date: ");
+					root5.add(prodSaleDateLab, 0, 1);
+					root5.add(salDatePick, 1, 1);
+					root5.add(searchSale, 2, 1);
 					searchSale.setOnAction(e->{
 						calculateSalesProduct();
+					});
+				//Add Back Button
+					root5.add(backButton5, 2, 2);
+					backButton5.setOnAction(e->{
+						primaryStage.setScene(scene1);
 					});
 			primaryStage.setScene(scene1);
 			primaryStage.show();
 		} catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void taxCalculation(){
+		String call =  "DECLARE "
+					+ " v_totalamt DECIMAL(4,2); "
+					+ " num integer := 1000; "
+					+ " BEGIN "
+					+ " TAX_COST_SP(?,?, v_totalamt); "
+					+ " DBMS_OUTPUT.PUT_LINE('The tax amount is $'|| to_char(v_totalamt, '0.00'));"
+					+ " DBMS_OUTPUT.GET_LINES(?, num); "
+					+ " END; ";
+
+		try{
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+
+			Statement s = con.createStatement();
+			s.executeUpdate("BEGIN DBMS_OUTPUT.ENABLE(); END;");
+
+			String location = orderLocation.getText();
+			int subtotal = Integer.parseInt(orderSubtotal.getText());
+
+
+			CallableStatement cstmt = con.prepareCall(call);
+
+			cstmt.setString(1, location);
+			cstmt.setInt(2, subtotal);
+
+			cstmt.registerOutParameter(3, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+			cstmt.execute();
+
+			Array array = null;
+
+			try
+			{
+				array = cstmt.getArray(3);
+				JOptionPane.showInputDialog(Arrays.asList((Object[]) array.getArray()));
+			}
+			finally
+			{
+				if (array != null)
+					array.free();
+			}
+			
+			
+			cstmt.close();
+
+			s.executeUpdate("begin dbms_output.disable(); end;");
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -589,6 +671,7 @@ public class Main extends Application {
 
 			cstmt.setInt(1, userProdId);
 			cstmt.setString(2, userProdDate);
+
 			
 			cstmt.registerOutParameter(3, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
 			cstmt.execute();
@@ -597,7 +680,65 @@ public class Main extends Application {
             try 
             {
                 array = cstmt.getArray(3);
-                System.out.println(Arrays.asList((Object[]) array.getArray()));
+                JOptionPane.showInputDialog(Arrays.asList((Object[]) array.getArray()));
+                
+            }
+            finally 
+            {
+                if (array != null)
+                    array.free();
+            }
+			
+			cstmt.close();
+			
+		    s.executeUpdate("begin dbms_output.disable(); end;");
+
+						
+		
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void checkStock() {
+		
+		
+		String call = "DECLARE "
+				    + " num integer := 1000; "
+				    + " BEGIN "
+					+ " check_basket(?);"
+					+ " DBMS_OUTPUT.GET_LINES(?, num);"
+					+ " END;";
+		
+		try 
+		
+		{
+			
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+			
+			Statement s = con.createStatement();
+			s.executeUpdate("BEGIN DBMS_OUTPUT.ENABLE(); END;");
+			
+			int userProdIdStoc = Integer.parseInt(prodIdStock.getText());
+
+
+			CallableStatement cstmt = con.prepareCall(call);
+
+			cstmt.setInt(1, userProdIdStoc);
+
+			
+			cstmt.registerOutParameter(2, Types.ARRAY, "DBMSOUTPUT_LINESARRAY");
+			cstmt.execute();
+			
+            Array array = null;
+            try 
+            {
+                array = cstmt.getArray(2);
+                JOptionPane.showInputDialog(Arrays.asList((Object[]) array.getArray()));
                 
             }
             finally 
