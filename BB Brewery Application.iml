@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="JAVA_MODULE" version="4">
   <component name="EclipseModuleManager">
-    <libelement value="jar://$MODULE_DIR$/../ojdbc8 (1).jar!/" />
+    <libelement value="file://C:/Users/14374/Documents/School/Java/ojdbc_driver/ojdbc6.jar" />
     <conelement value="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER" />
     <src_description expected_position="1">
       <src_folder value="file://$MODULE_DIR$/src" expected_position="1" />
@@ -17,10 +17,10 @@
     <orderEntry type="library" exported="" name="JavaFx" level="project" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER" level="application" />
-    <orderEntry type="module-library" exported="">
-      <library name="ojdbc8 (1).jar">
+    <orderEntry type="module-library">
+      <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../ojdbc8 (1).jar!/" />
+          <root url="jar://$USER_HOME$/Downloads/ojdbc8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

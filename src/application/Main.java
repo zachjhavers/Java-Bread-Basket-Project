@@ -36,17 +36,20 @@ import javafx.scene.layout.GridPane;
 public class Main extends Application {
 	
 	//Scene
-		Scene scene1, scene2, scene3, scene4, scene5;
+		Scene scene1, scene2, scene3, scene4, scene5, scene6;
 	
 	//Variables 
 		static final String DATABASE_URL = "jdbc:oracle:thin:@199.212.26.208:1521:SQLD";
 		static final String USER_NAME = "COMP214_F22_er_70";
+
 		static final String PASS = "password";
+
 		ListView<String> basketItemData = new ListView<String>();
 		ListView<String> prodDescList = new ListView<String>();
 		ListView<String> prodList = new ListView<String>();
 		ListView<String> addToBask = new ListView<String>();
-		ListView<String> orderTaxList = new ListView<String>();
+		ListView<String> shipList = new ListView<String>();
+		ListView<String> shopperTotalList = new ListView<String>();
 		TextField searchBasketItemId = new TextField();
 		TextField prodId = new TextField();
 		TextField prodDesc = new TextField();
@@ -65,7 +68,7 @@ public class Main extends Application {
 		TextField salDatePick = new TextField();
 		TextField orderLocation = new TextField();
 		TextField orderSubtotal = new TextField();
-		DatePicker datePick = new DatePicker();
+		TextField datePick = new TextField();
 		TextField shipperComp = new TextField();
 		TextField shipNum = new TextField();
 		TextField idBasket = new TextField();
@@ -87,6 +90,8 @@ public class Main extends Application {
 		Button searchSale = new Button("Search Sales");
 		Button calcTax = new Button("Calculate");
 		Button shipStatus = new Button("Add Shipping");
+		Button shopperTotalBut = new Button("Shopper Total Spending");
+		Button popShopList = new Button("Shopper Totals");
 		String pattern = "YY/MM/DD";
 		DateFormat df = new SimpleDateFormat(pattern);
 	
@@ -120,6 +125,11 @@ public class Main extends Application {
 				salePage.setOnAction(e-> primaryStage.setScene(scene5));
 				salePage.setPrefHeight(100);
 				salePage.setPrefWidth(450);
+			//Button For Sale Page
+				root.add(shopperTotalBut, 0, 4);
+				shopperTotalBut.setOnAction(e-> primaryStage.setScene(scene6));
+				shopperTotalBut.setPrefHeight(100);
+				shopperTotalBut.setPrefWidth(450);
 			//Scene 2
 				GridPane root2 = new GridPane();
 				scene2 = new Scene(root2,450, 700);
@@ -171,42 +181,49 @@ public class Main extends Application {
 				backButton1.setOnAction(e->{
 					primaryStage.setScene(scene1);
 				});
-			//Orders page scene3
+			//Orders page 
+				//Scene3
 					GridPane root3 = new GridPane();
-					scene3 = new Scene(root3,650, 700);
+					scene3 = new Scene(root3,400, 700);
 					root3.setPadding(new Insets(25,25,25,25));
 					root3.setHgap(20);
 					root3.setVgap(30);
 			//Sales tax calculation
 					Label labelState = new Label("State: ");
 					root3.add(labelState, 0, 0);
-					root3.add(orderLocation, 8, 0);
+					root3.add(orderLocation, 1, 0);
 					Label LabelSubtotal = new Label("Subtotal: ");
 					root3.add(LabelSubtotal,0,1);
-					root3.add(orderSubtotal, 8,1);
-					root3.add(calcTax, 9,3);
-					root3.add(orderTaxList, 0, 2);
-					GridPane.setColumnSpan(orderTaxList, GridPane.REMAINING);
-					orderTaxList.setPrefHeight(100);
+					root3.add(orderSubtotal, 1,1);
+					root3.add(calcTax, 1,2);
+					calcTax.setPrefWidth(200);
 					calcTax.setOnAction(e -> {
 						taxCalculation();
 				});
 			//Order Status
-					Label IdBasket = new Label("ID BASKET: ");
-					root3.add(IdBasket, 0, 5);
-					root3.add(idBasket, 8, 5);
+					Label IdBasket = new Label("Basket ID: ");
+					root3.add(IdBasket, 0, 3);
+					root3.add(idBasket, 1, 3);
 					Label date = new Label("Date: ");
-					root3.add(date, 0, 6);
-					root3.add(datePick, 8, 6);
+					root3.add(date, 0, 4);
+					root3.add(datePick, 1, 4);
 					Label shipper = new Label("Shipper: ");
-					root3.add(shipper, 0, 7);
-					root3.add(shipperComp, 8, 7);
-					Label shipNumber = new Label("Shipping Num:");
-					root3.add(shipNumber, 0, 8);
-					root3.add(shipNum, 8, 8);
-					root3.add(shipStatus, 7,9);
+					root3.add(shipper, 0, 5);
+					root3.add(shipperComp, 1, 5);
+					Label shipNumber = new Label("Shipping Number:");
+					root3.add(shipNumber, 0, 6);
+					root3.add(shipNum, 1, 6);
+					root3.add(shipStatus, 1,7);
+					shipStatus.setPrefWidth(200);
+					shipStatus.setOnAction(e->{
+						updateOrderStat();
+					});
+					root3.add(shipList, 0, 8);
+					GridPane.setColumnSpan(shipList, GridPane.REMAINING);
+					shipList.setPrefHeight(100);
 				//Add Back Button
-					root3.add(backButton3, 0, 10);
+					root3.add(backButton3, 1, 9);
+					backButton3.setPrefWidth(200);
 					backButton3.setOnAction(e->{
 						primaryStage.setScene(scene1);
 					});
@@ -295,6 +312,20 @@ public class Main extends Application {
 					backButton5.setOnAction(e->{
 						primaryStage.setScene(scene1);
 					});
+			//Scene 6
+				//Shopper Total Spending
+					GridPane root6 = new GridPane();
+					scene6 = new Scene(root6,450,300);
+					root6.setPadding(new Insets(25,25,25,25));
+					root6.setHgap(20);
+					root6.setVgap(20);
+					root6.add(shopperTotalList, 0, 0);
+					GridPane.setColumnSpan(shopperTotalList, GridPane.REMAINING);
+					shopperTotalList.setPrefHeight(100);
+					root6.add(popShopList, 0, 1);
+					popShopList.setOnAction(e->{
+						getCustomerTotalPurchase();
+					});
 			primaryStage.setScene(scene1);
 			primaryStage.show();
 		} catch(Exception e) {
@@ -302,7 +333,9 @@ public class Main extends Application {
 		}
 	}
 	
-	private void taxCalculation(){
+	private void taxCalculation()
+	
+	{
 		String call =  "DECLARE "
 					+ " v_totalamt DECIMAL(4,2); "
 					+ " num integer := 1000; "
@@ -312,7 +345,8 @@ public class Main extends Application {
 					+ " DBMS_OUTPUT.GET_LINES(?, num); "
 					+ " END; ";
 
-		try{
+		try
+		{
 			Class.forName("oracle.jdbc.OracleDriver");
 
 			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
@@ -759,6 +793,136 @@ public class Main extends Application {
 		}
 		
 	}
+	
+	private void updateOrderStat() {
+		
+		
+		String call = ("{CALL STATUS_SHIP_SP (?, ?, ?, ?)}");
+		
+		try 
+		
+		{
+			
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+			
+			
+			int basketId = Integer.parseInt(idBasket.getText());
+			String date = datePick.getText();
+			String company = shipperComp.getText();
+			String num = shipNum.getText();
+
+
+			CallableStatement cstmt = con.prepareCall(call);
+
+			cstmt.setInt(1, basketId);
+			cstmt.setString(2, date);
+			cstmt.setString(3, company);
+			cstmt.setString(4, num);
+			
+			cstmt.execute();
+				
+			cstmt.close();
+			
+			getBasketStatus();
+
+
+						
+		
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void getBasketStatus() {
+		
+		try 
+		
+		{
+			
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+
+
+			String q = "SELECT * FROM BB_BASKETSTATUS";
+			
+
+			Statement st = con.createStatement();
+
+			
+			ResultSet rs = st.executeQuery(q);
+			
+			
+	           ObservableList<String> shipStatList = FXCollections.observableList(new ArrayList<String>());
+			   
+	           while(rs.next()) {
+	        	   
+
+	        	   int idStatus = rs.getInt(1);
+	        	   int idBasket = rs.getInt(2);
+	        	   int idStage = rs.getInt(3);
+	        	   Date dtStage =rs.getDate(4);
+	        	   String notes = rs.getString(5);
+	        	   String shipper = rs.getString(6);
+	        	   String shippingNum = rs.getString(7);
+
+	        	   
+	        	   shipStatList.add("ID Status: "+idStatus+"\t"+"Basket ID: "+idBasket+"\t"+"ID Stage: "+idStage+"\t"+"Date: "+dtStage+"\t"+"Notes: "+notes+"\t"+"Shipping Company: "+shipper+"\t"+"Shipping Number: "+shippingNum);
+	           }
+	           
+	           shipList.setItems(shipStatList);
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void getCustomerTotalPurchase() {
+		
+		try 
+		
+		{
+			
+			Class.forName("oracle.jdbc.OracleDriver");
+
+			Connection con = DriverManager.getConnection(DATABASE_URL, USER_NAME, PASS);
+
+
+			String q = " SELECT idshopper,tot_purch_sf(idshopper) "
+					 + " FROM bb_shopper ";
+			
+
+			Statement st = con.createStatement();
+
+			
+			ResultSet rs = st.executeQuery(q);
+			
+			
+	           ObservableList<String> shopperTot = FXCollections.observableList(new ArrayList<String>());
+			   
+	           while(rs.next()) {
+	        	   
+
+	        	   int shopperId = rs.getInt(1);
+	        	   int shopperTotal = rs.getInt(2);
+
+	        	   
+	        	   shopperTot.add("Shopper ID "+shopperId+"\t"+"Total Spending: "+shopperTotal);
+	           }
+	           
+	           shopperTotalList.setItems(shopperTot);
+
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 
 	
 	
